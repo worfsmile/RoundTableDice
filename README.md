@@ -16,7 +16,7 @@ Start from the player who loses the last game. (Start from the first player if t
       2. Otherwise, player pj wins the game.
       3. Respectively, rule can define that point 1 can represent any point on the die when counting $l'$.
    2. If no other player chooses to question the asser, then next player p_{(i+1) mod n}'s turn.
-      1. In next player's roll $r+1$, p_{(i+1) mod n}'s asser about $l_{r+1}$$ should satisify $(l_{r+1} > l_{r})$ or $(l_{r+1} = l_{r}$ and $k_{r+1} > k_{r})$.
+      1. In next player's roll $r+1$, p_{(i+1) mod n}'s asser about $l_{r+1}$ should satisify $(l_{r+1} > l_{r})$ or $(l_{r+1} = l_{r}$ and $k_{r+1} > k_{r})$.
       2. To 2.
 ---
 
