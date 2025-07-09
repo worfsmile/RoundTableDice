@@ -1,4 +1,4 @@
-Game for RoundTableDice
+# Game for RoundTableDice
 
 Setting:
 Suppose n people denote as: p1, p2, ..., pn
