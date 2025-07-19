@@ -1,5 +1,6 @@
 from typing import List, Tuple, Dict, Optional
 import random
+import math
 
 
 DicePoints = List[int] # 骰子点数
@@ -30,9 +31,11 @@ class Decision:
 
 class Context:
     """玩家能看到的信息"""
-    def __init__(self, dices: DicePoints, decisions: List[Tuple[str, Decision]]):
-        self.dices = dices
-        self.decisions = decisions
+    def __init__(self):
+        self.player_num: int # 玩家数量
+        self.dice_num: int # 骰子数量
+        self.dices: DicePoints # 该玩家的骰子点数
+        self.decisions: List[Tuple[str, Decision]] # 之前的决策
 
 class Round:
     """一轮游戏"""
@@ -78,8 +81,13 @@ class Round:
                     s += 1
         return s >= dice_num
 
-    def getContext(self, player: str) -> Context:
-        return Context(self.dices[player], self.decisions)
+    def getContext(self, player: str, game: "Game") -> Context:
+        ret = Context()
+        ret.player_num = len(game.players)
+        ret.dice_num = game.dice_num
+        ret.dices = self.dices[player]
+        ret.decisions = self.decisions
+        return ret
 
 class Player:
     def __init__(self, name: str):
@@ -90,11 +98,34 @@ class Player:
         """玩家进行决策"""
         if context.decisions:
             last = context.decisions[-1][1]
-            decision.makeGuess(last.dice_num, last.dice_point + 1)
-            if last.dice_point == 6:
+
+            # 判断上一个玩家获胜的概率
+            total_dice_num = context.dice_num * context.player_num
+            single_p = (6 - last.dice_point + 1) / 6 # 单个骰子 >= n 的概率
+            last_p = 0
+            for i in range(last.dice_num, total_dice_num + 1):
+                last_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
+
+            # 这次猜测获胜的概率
+            this_p = 0
+            for i in range(last.dice_num + 1, total_dice_num + 1):
+                last_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
+
+            if last_p > 0.5:
+                if this_p < 0.5:
+                    # 看看谁接近0.5
+                    d1 = last_p - 0.5
+                    d2 = 0.5 - this_p
+                    if d1 > d2:
+                        decision.makeGuess(last.dice_num + 1, last.dice_point)
+                    else:
+                        decision.makeOpen(context.decisions[-1][0])
+                else:
+                    decision.makeGuess(last.dice_num + 1, last.dice_point)
+            else:
                 decision.makeOpen(context.decisions[-1][0])
         else:
-            decision.makeGuess(4, 1)
+            decision.makeGuess(1, 3)
 
 class Game:
     def __init__(self, dice_num: int, players: List[Player]):
@@ -139,7 +170,7 @@ class Game:
         # 游戏刚开始
         return self.players[0]
 
-    def turn(self) -> bool:
+    def turn(self, print_out: bool) -> bool:
         """继续一轮, 返回本轮是否结束"""
         if self.current_round is None:
             print("游戏未开始")
@@ -148,7 +179,7 @@ class Game:
         # 让玩家进行决策
         decision = Decision()
         player = self._getNextPlayer()
-        player.decide(self.current_round.getContext(player.name), decision)
+        player.decide(self.current_round.getContext(player.name, self), decision)
         if not self.current_round.makeDecision(player.name, decision):
             return True # 不合法的猜测结束
 
@@ -169,16 +200,20 @@ class Game:
                         self.players_map[decision.opened_player].score -= 1
                         winner = player.name
                         loser = decision.opened_player
-                    print(
-                        f"本轮结束: 赢家 {winner}, 输家 {loser}\n"
-                        f"{player.name} 开 {decision.opened_player}\n"
-                        f"{decision.opened_player} 报 {player_d.dice_num} 个 {player_d.dice_point}\n"
-                        f"场上点数:"
-                    )
+                    if print_out:
+                        print(
+                            f"本轮结束: 赢家 {winner}, 输家 {loser}\n"
+                            f"{player.name} 开 {decision.opened_player}\n"
+                            f"{decision.opened_player} 报 {player_d.dice_num} 个 {player_d.dice_point}\n"
+                            f"场上点数:"
+                        )
                     break
+
+            self.current_round.loser = self.players_map[loser]
             # 结束本轮
             for name, dices in self.current_round.dices.items():
-                print(f"{name}: {dices}")
+                if print_out:
+                    print(f"{name}: {dices}")
             self.rounds.append(self.current_round)
             self.current_round = None
             return True
@@ -192,6 +227,10 @@ if __name__ == "__main__":
         Player("Stewie"),
     ]
     g = Game(4, players)
-    g.roundStart()
-    while not g.turn():
-        pass
+    for i in range(10000):
+        g.roundStart()
+        while not g.turn(False):
+            pass
+    print("最终得分:")
+    for player in players:
+        print(player.name, player.score)
