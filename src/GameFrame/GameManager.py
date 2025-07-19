@@ -22,6 +22,7 @@ class GameManager:
         else:
             record = current_player.browse(self.records[-1])
             while not record:
+                print("make an assumption")
                 record = current_player.browse(self.records[-1])
         self.records.append(record)
 
