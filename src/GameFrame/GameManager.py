@@ -16,6 +16,7 @@ class GameManager:
         self.judge = Judge(dice_set)
     
     def each_round(self):
+        currant_player = self.players[self.current_player_index]
         if len(self.records) == 0:
             record = current_player.browse()
         else:
