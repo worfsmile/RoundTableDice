@@ -3,8 +3,8 @@ import random
 from Player import Player
 from Round import Round
 from Decision import Decision
-
-DicePoints = List[int] # 骰子点数
+from Context import Context
+from DicePoints import DicePoints
 
 class Game:
     def __init__(self, dice_num: int, players: List[Player]):
@@ -97,3 +97,20 @@ class Game:
             self.current_round = None
             return True
         return False
+
+if __name__ == "__main__":
+    players = [
+        Player("Peter"),
+        Player("Lois"),
+        Player("Brain"),
+        Player("Stewie"),
+    ]
+    g = Game(4, players)
+    for i in range(10000):
+        g.roundStart()
+        while not g.turn(False):
+            pass
+    print("最终得分:")
+    for player in players:
+        print(player.name, player.score)
+        

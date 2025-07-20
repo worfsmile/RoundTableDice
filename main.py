@@ -2,7 +2,6 @@ from typing import List, Tuple, Dict, Optional
 import random
 import math
 
-
 DicePoints = List[int] # 骰子点数
 
 class Decision:

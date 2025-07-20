@@ -1,4 +1,4 @@
-
+from typing import List
 
 class Decision:
     """一次决策: 开人 or 报点"""
