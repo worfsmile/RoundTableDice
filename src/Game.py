@@ -1,3 +1,11 @@
+from typing import List, Optional
+import random
+from Player import Player
+from Round import Round
+from Decision import Decision
+
+DicePoints = List[int] # 骰子点数
+
 class Game:
     def __init__(self, dice_num: int, players: List[Player]):
         self.dice_num = dice_num
