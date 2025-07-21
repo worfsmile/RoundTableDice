@@ -103,8 +103,8 @@ class Game:
 if __name__ == "__main__":
     players = [
         Player2("Peter"),
-        Player2("Lois"),
-        Player2("Brain"),
+        Player1("Lois"),
+        Player1("Brain"),
         Player1("Stewie"),
     ]
     g = Game(4, players)
