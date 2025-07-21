@@ -1,4 +1,8 @@
-# Game for RoundTableDice
+# 🎲 RoundTableDice: A Bluffing Dice Game
+
+```text
+
+Game for RoundTableDice
 
 Setting:
 Suppose n people denote as: p1, p2, ..., pn
@@ -18,9 +22,9 @@ Start from the player who loses the last game. (Start from the first player if t
    2. If no other player chooses to question the asser, then next player p_{(i+1) mod n}'s turn.
       1. In next player's roll $r+1$, p_{(i+1) mod n}'s asser about $l_{r+1}$ should satisify $(l_{r+1} > l_{r})$ or $(l_{r+1} = l_{r}$ and $k_{r+1} > k_{r})$.
       2. To 2.
----
+```
 
-# 🎲 RoundTableDice: A Bluffing Dice Game
+---
 
 ## 📋 Overview
 
