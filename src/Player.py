@@ -9,6 +9,13 @@ class Player:
         self.dices = []
         self.score = 0 # 赢一局 + 1, 输一局 -1
 
+    def count_p(self, num, total):
+        single_p = 1 / 6
+        p = 0
+        for i in range(num, total + 1):
+            p += math.comb(total, i) * (single_p**i) * ((1 - single_p)**(total - i))
+        return p
+
     def decide(self, context: Context, decision: Decision) -> None:
         pass
 
@@ -30,9 +37,7 @@ class Player1(Player):
             last = context.decisions[-1][1]
             total_dice_num = context.dice_num * context.player_num
             single_p = 1 / 6
-            last_p = 0
-            for i in range(last.dice_num, total_dice_num + 1):
-                last_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
+            last_p = self.count_p(last.dice_num, total_dice_num)
 
             # 这次猜测获胜的概率
             this_p = 0
@@ -43,8 +48,7 @@ class Player1(Player):
             else:
                 num = last.dice_num + 1
                 point = 1
-                for i in range(last.dice_num + 1, total_dice_num + 1):
-                    this_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
+                this_p = self.count_p(num, total_dice_num)
 
             if last_p > 0.5:
                 if this_p < 0.5:
@@ -76,27 +80,58 @@ class Player2(Player):
     def __init__(self, name: str):
         super().__init__(name)
 
+    def dice_dict(self):
+        """计算骰子的频数"""
+        dice_dict = {}
+        for dice in self.dices:
+            if dice in dice_dict:
+                dice_dict[dice] += 1
+            else:
+                dice_dict[dice] = 1
+        return dice_dict
+
     def decide(self, context: Context, decision: Decision) -> None:
         """玩家进行决策"""
         if context.decisions:
+            dice_dict = self.dice_dict()
             last = context.decisions[-1][1]
-            total_dice_num = context.dice_num * context.player_num
-            single_p = 1 / 6
-            last_p = 0
-            for i in range(last.dice_num, total_dice_num + 1):
-                last_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
 
-            # 这次猜测获胜的概率
+            tmp = dice_dict.get(last.dice_point, 0)
+            total_dice_num = context.dice_num * context.player_num - tmp
+            last_p = self.count_p(last.dice_num - tmp, total_dice_num - tmp)
+
             this_p = 0
+            this_p1 = 0
+            this_p2 = 0
             if last.dice_point < 6:
-                this_p = last_p
-                num = last.dice_num
-                point = last.dice_point + 1
+                num1 = last.dice_num
+                point1 = last.dice_point + 1
+                for pointi in range(last.dice_point + 1, 7):
+                    tmp = dice_dict.get(pointi, 0)
+                    total_dice_numi = context.dice_num * context.player_num - tmp
+                    pi = self.count_p(num1 - tmp, total_dice_numi - tmp)
+                    if pi > this_p1:
+                        this_p1 = pi
+                        point1 = pointi
+            
+
+            num2 = last.dice_num + 1
+            for pointi in range(1, 7):
+                tmp = dice_dict.get(pointi, 0)
+                total_dice_numi = context.dice_num * context.player_num - tmp
+                pi = self.count_p(num2 - tmp, total_dice_numi - tmp)
+                if pi > this_p2:
+                    this_p2 = pi
+                    point2 = pointi
+
+            if this_p1 > this_p2:
+                this_p = this_p1
+                num = num1
+                point = point1
             else:
-                num = last.dice_num + 1
-                point = 1
-                for i in range(last.dice_num + 1, total_dice_num + 1):
-                    this_p += math.comb(total_dice_num, i) * (single_p**i) * ((1 - single_p)**(total_dice_num-i))
+                this_p = this_p2
+                num = num2
+                point = point2
 
             if last_p > 0.5:
                 if this_p < 0.5:
