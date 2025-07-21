@@ -21,6 +21,8 @@ class Game:
         # 为每个玩家摇骰子
         for player in self.players:
             dices[player.name] = [random.randint(1, 6) for _ in range(self.dice_num)]
+            player.dices = dices[player.name]
+
         self.current_round = Round(dices)
 
     def _getNextPlayer(self) -> Player:
@@ -47,7 +49,7 @@ class Game:
             return self.players[(i + 1) % len(self.players)]
 
         # 游戏刚开始
-        return self.players[0]
+        return self.players[random.randint(0, len(self.players)-1)]
 
     def turn(self, print_out: bool) -> bool:
         """继续一轮, 返回本轮是否结束"""
