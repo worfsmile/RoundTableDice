@@ -10,6 +10,10 @@ class Player:
         self.score = 0 # 赢一局 + 1, 输一局 -1
 
     def count_p(self, num, total):
+        if num > total:
+            return 0
+        if num < 0:
+            return 1
         single_p = 1 / 6
         p = 0
         for i in range(num, total + 1):
