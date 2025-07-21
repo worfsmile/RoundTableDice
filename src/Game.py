@@ -1,6 +1,6 @@
 from typing import List, Optional
 import random
-from Player import Player
+from Player import Player, Player1
 from Round import Round
 from Decision import Decision
 from Context import Context
@@ -100,10 +100,10 @@ class Game:
 
 if __name__ == "__main__":
     players = [
-        Player("Peter"),
-        Player("Lois"),
-        Player("Brain"),
-        Player("Stewie"),
+        Player1("Peter"),
+        Player1("Lois"),
+        Player1("Brain"),
+        Player1("Stewie"),
     ]
     g = Game(4, players)
     for i in range(10000):

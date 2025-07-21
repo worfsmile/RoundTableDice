@@ -9,6 +9,13 @@ class Player:
         self.score = 0 # 赢一局 + 1, 输一局 -1
 
     def decide(self, context: Context, decision: Decision) -> None:
+        pass
+
+class Player1(Player):
+    def __init__(self, name: str):
+        super().__init__(name)
+
+    def decide(self, context: Context, decision: Decision) -> None:
         """玩家进行决策"""
         if context.decisions:
             last = context.decisions[-1][1]
@@ -40,3 +47,4 @@ class Player:
                 decision.makeOpen(context.decisions[-1][0])
         else:
             decision.makeGuess(1, 3)
+            
