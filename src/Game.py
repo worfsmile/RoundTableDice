@@ -104,8 +104,8 @@ if __name__ == "__main__":
     players = [
         Player1("Peter"),
         Player3("Lois"),
-        Player1("Brain"),
-        Player1("Stewie"),
+        Player2("Brain"),
+        Player2("Stewie"),
     ]
     g = Game(4, players)
     for i in range(10000):

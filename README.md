@@ -78,7 +78,7 @@ If a player $p_j$ challenges:
 1. All players **reveal their dice**
 2. Count the number $l'$ of dice showing value $k$
 
-### 🧠 Result:
+### 🧠 Results
 
 * If $l' \geq l$: **challenger $p_j$ loses**
 * If $l' < l$: **challenger wins**, and the previous **asser loses**
