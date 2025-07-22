@@ -23,3 +23,4 @@ class Decision:
             return f"开 {self.opened_player}"
         else:
             return f"{self.dice_point} 有 {self.dice_num} 个"
+
