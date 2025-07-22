@@ -258,4 +258,3 @@ class Player3(Player2):
                     num = n
             decision.makeGuess(num, point)
 
-
