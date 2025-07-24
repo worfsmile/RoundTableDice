@@ -102,13 +102,13 @@ class Game:
 
 if __name__ == "__main__":
     players = [
-        Player4("Peter"),
-        Player4("Lois"),
-        Player4("Brain"),
+        Player1("Peter"),
+        Player2("Lois"),
+        Player3("Brain"),
         Player4("Stewie"),
     ]
     g = Game(4, players)
-    for i in range(10):
+    for i in range(40):
         g.roundStart()
         while not g.turn(False):
             pass
