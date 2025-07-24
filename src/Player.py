@@ -258,3 +258,15 @@ class Player3(Player2):
                     num = n
             decision.makeGuess(num, point)
 
+
+class Player4(Player):
+    """
+        行为逻辑:
+        通过大模型驱动的决策机器人
+    """
+    def __init__(self, name: str):
+        super().__init__(name)
+
+    def decide(self, context: Context, decision: Decision) -> None:
+        """玩家进行决策"""
+        pass

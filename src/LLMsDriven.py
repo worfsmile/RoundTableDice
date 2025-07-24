@@ -1,0 +1,116 @@
+# this file call the api to modify text
+
+import json
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+import requests
+import torch
+from openai import OpenAI
+from tqdm import tqdm
+import random
+
+from system_message import system_message
+
+api_key = ''
+
+
+def print_balance():
+    url = "deepseek url"
+
+    payload={}
+    headers = {
+    'Accept': 'application/json',
+    'Authorization': f'Bearer {api_key}'
+    }
+
+    response = requests.request("GET", url, headers=headers, data=payload)
+
+    print(response.text)
+
+def print_models():
+    # for backward compatibility, you can still use `` as `base_url`.
+    client = OpenAI(api_key=api_key, base_url="https://api.deepseek.com")
+    print(client.models.list())
+
+def api_call(messages: str) -> str:
+    url = "https://api.deepseek.com/chat/completions"
+
+    payload = json.dumps({
+        "messages": messages,
+        "model": "deepseek-chat",
+        "frequency_penalty": 0,
+        "max_tokens": 1024,
+        "presence_penalty": 0,
+        "response_format": {
+            "type": "text"
+        },
+        "stop": None,
+        "stream": False,
+        "stream_options": None,
+        "temperature": 0.5,
+        "top_p": 1,
+        "tools": None,
+        "tool_choice": "none",
+        "logprobs": False,
+        "top_logprobs": None
+    })
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {api_key}'
+    }
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+    return response.text
+
+def prompter(context, dices, n):
+    last = context[-1]
+    l, k = last.dice_num, last.dice_point
+    
+    return """
+    
+    This is your turn, last player's decision is: {l} dice with {k} points. Your dices is {dices}.
+    Please make a guess that there are {n} dice with {k} points, where (l > {l}) or (l == {l} and k > {k}), represented by (l, k).
+    Or quesiton last player's decision, represented by (0, 0).
+
+    reply with (l, k) or (0, 0)
+    please only reply a tuple.
+
+    """
+
+def LLMsResponse(last):    
+    message = [
+        {
+            "role": "system",
+            "content": system_message()
+        },
+        {
+            "role": "user",
+            "content": prompter()
+        }
+    ]
+    response = api_call(message)
+    response = json.loads(response)
+    message = response['choices'][0]['message']['content']
+    flag = -1
+    error_text = ""
+    try:
+        l, k = message.split(" ")
+        k = int(k)
+        l = int(l)
+    except:
+        return flag, error_text
+    if k < 1 or k > 6:
+        flag = 1
+        error_text += "Invalid number of dice. Please enter a number between 1 and 6."
+    elif l < last.dice_num or (l == last.dice_num and k <= last.dice_point):
+        flag = 1
+        error_text += f"Invalid assert. Please make a guess that there are l dice with k points, where (l > {last.dice_num}) or (l == {last.dice_num} and k > {last.dice_point})."
+    else:
+        flag = 0
+    if flag:
+        return flag, error_text
+    return flag, (l, k)
+
+
