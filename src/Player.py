@@ -3,6 +3,7 @@ from Context import Context
 from Decision import Decision
 import math
 import random
+from LLMsDriven import LLMsResponse
 
 class Player:
     def __init__(self, name: str):
@@ -228,6 +229,9 @@ class Player3(Player2):
             num = num2
             point = point2
         
+        if num == None:
+            num, point, this_p = self.get_num_point_plyer2(dice_dict, last, context)
+        
         return num, point, this_p
 
     def decide(self, context: Context, decision: Decision, threshold: float = 0.5) -> None:
@@ -242,9 +246,6 @@ class Player3(Player2):
             last_p = self.count_p(last.dice_num, total_dice_num)
 
             num, point, this_p = self.get_num_point_plyer3(dice_dict, last, context, threshold)
-
-            if num == None:
-                num, point, this_p = self.get_num_point_plyer2(dice_dict, last, context)
             
             self.action(decision, context, last_p, this_p, num, point)
 
@@ -259,7 +260,7 @@ class Player3(Player2):
             decision.makeGuess(num, point)
 
 
-class Player4(Player):
+class Player4(Player3):
     """
         行为逻辑:
         通过大模型驱动的决策机器人
@@ -269,4 +270,40 @@ class Player4(Player):
 
     def decide(self, context: Context, decision: Decision) -> None:
         """玩家进行决策"""
-        pass
+        dice_dict = self.count_dice_dict()
+        if context.decisions:
+            last = context.decisions[-1][1]
+            flag = 1
+            try_time = 0
+            while flag != 0 and try_time < 3:
+                flag, strategy = LLMsResponse(context.decisions, self.dices, 1)
+                if flag:
+                    print(flag, strategy)
+                try_time += 1
+            
+            if flag != 0:
+                num, point, this_p = self.get_num_point_plyer3(dice_dict, last, context, 0.5)
+                tmp = self.dice_dict().get(point, 0)
+                last_p = self.count_p(num - tmp, context.dice_num * context.player_num - tmp)
+
+            else:
+                num, point = strategy
+                if num == 0:
+                    last_p = 0
+                    this_p = 0
+                    
+                else:
+                    tmp = self.dice_dict().get(point, 0)
+                    this_p = self.count_p(num, context.dice_num * context.player_num)
+                    last_p = self.count_p(num - tmp, context.dice_num * context.player_num - tmp)
+
+            self.action(decision, context, last_p, this_p, num, point)
+        else:
+            point = 1
+            num = 0
+            for i in range(1, 7):
+                n = dice_dict.get(i, 0)
+                if n > num:
+                    point = i
+                    num = n
+            decision.makeGuess(num, point)
