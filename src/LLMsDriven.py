@@ -13,7 +13,7 @@ from copy import deepcopy
 
 from system_message import system_message
 
-api_key = 'sk-251c110d2ce44b5b93e3618d3df0dc90'
+api_key = ''
 
 
 def print_balance():
