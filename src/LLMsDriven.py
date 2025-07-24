@@ -10,10 +10,10 @@ from openai import OpenAI
 from tqdm import tqdm
 import random
 from copy import deepcopy
+import re
+from typing import List, Tuple
 
-from system_message import system_message
-
-api_key = ''
+api_key = 'sk-251c110d2ce44b5b93e3618d3df0dc90'
 
 
 def print_balance():
@@ -65,14 +65,14 @@ def api_call(messages: str) -> str:
     response = requests.request("POST", url, headers=headers, data=payload)
     return response.text
 
-def prompter(context, dices, n=1):
-    last = context[-1][1]
+def prompter(context, dices, prefix = ""):
+    last = context.decisions[-1][1]
     l, k = last.dice_num, last.dice_point
-    context_str = ["{c[1].dice_point} dices with {c[1].dice_num} points".format(c=c) for c in context]
+    context_str = ["{c[1].dice_point} dices with {c[1].dice_num} points".format(c=c) for c in context.decisions]
     
     return f"""
     
-    This is your turn, previous player's decision is: {context_str[-n:]}(from earlier to current). Your dices is {dices}.
+    This is your turn, previous player's decision is: {prefix} (from earlier to current). Your dices is {dices}.
     Please make a guess that there are l dice with k points, where (l > {l}) or (l == {l} and k > {k}), represented by (l, k).
     Or quesiton last player's decision, represented by (0, 0).
 
@@ -81,63 +81,32 @@ def prompter(context, dices, n=1):
 
     """
 
-def LLMsResponse(context, dices, n = 1):   
-    last = context[-1][1]
-    message = [
-        {
-            "role": "system",
-            "content": system_message(dices)
-        },
-        {
-            "role": "user",
-            "content": prompter(context, dices, n)
-        }
-    ]
+def extract_message(message):
+    flag = -1
+
+    if str(message).strip() == "0":
+        return 0, 0
+
+    matches = re.findall(r"\(\s*(\d+)\s*,\s*(\d+)\s*\)", message)
+    
+    if not matches:
+        return flag, message
+    
+    l, k = matches[-1]
+    return int(l), int(k)
+
+def LLMsResponse(context, message, dices, n = 1):   
+    last = context.decisions[-1][1]
     response = api_call(message)
     response = json.loads(response)
-    message = response['choices'][0]['message']['content']
-    try:
-        if int(message) == 0:
-            message = "(0, 0)"
-    except:
-        pass
-    message_copy = deepcopy(message)
+    response = response['choices'][0]['message']['content']
+    response_copy = str(response)
     flag = -1
     error_text = ""
-    try:
-        message = deepcopy(message_copy)
-        if message.startswith("("):
-            message = message[1:]
-        if message.endswith(")"):
-            message = message[:-1]
-        l, k = message.split(",")
-        k = int(k)
-        l = int(l)
-    except:
-        try:
-            message = deepcopy(message_copy)
-            message = message.split(r"\n")[-1]
-            if message.startswith("("):
-                message = message[1:]
-            if message.endswith(")"):
-                message = message[:-1]
-            l, k = message.split(",")
-            k = int(k)
-            l = int(l)
-        except:
-            try:
-                message = deepcopy(message_copy)
-                message = message.split(r"\n")[-1].split(" ")[-1]
-                if message.startswith("("):
-                    message = message[1:]
-                if message.endswith(")"):
-                    message = message[:-1]
-                l, k = message.split(",")
-                k = int(k)
-                l = int(l)
-            except:
-                return flag, message_copy
-    message = deepcopy(message_copy)
+    l, k = extract_message(response)
+    if l == -1:
+        return l, k
+    response = deepcopy(response_copy)
     if l == 0 and k == 0:
         flag = 0
         return flag, (0, 0)

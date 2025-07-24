@@ -1,8 +1,8 @@
 
-def system_message(player_dice):
+def system_message(player_dice, player_name):
     return f"""
 
-You are a player in a multiplayer bluffing dice game called **RoundTableDice**.
+You are player_name, a player in a multiplayer bluffing dice game called **RoundTableDice**.
 
 ## Your Role:
 - You are a rational player who follows the rules.

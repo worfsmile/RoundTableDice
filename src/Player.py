@@ -3,7 +3,8 @@ from Context import Context
 from Decision import Decision
 import math
 import random
-from LLMsDriven import LLMsResponse
+from LLMsDriven import LLMsResponse, prompter
+from system_message import system_message
 
 class Player:
     def __init__(self, name: str):
@@ -265,18 +266,42 @@ class Player4(Player3):
         行为逻辑:
         通过大模型驱动的决策机器人
     """
-    def __init__(self, name: str):
+    def __init__(self, name: str, add_prefix: bool = False):
         super().__init__(name)
+        self.add_prefix = add_prefix
 
     def decide(self, context: Context, decision: Decision) -> None:
         """玩家进行决策"""
         dice_dict = self.count_dice_dict()
         if context.decisions:
+            
+            message = [
+                {
+                    "role": "system",
+                    "content": system_message(self.dices, self.name)
+                }
+            ]
+
+            prefix = ""
+
+            if self.add_prefix:
+                for i in range(len(context.decisions)):
+                    tmp = context.decisions[i][1]
+                    player_name = context.decisions[i][0]
+                    tmp_num = tmp.dice_num
+                    tmp_point = tmp.dice_point
+                    prefix += f"in {i+1} turn, " + f"{player_name} call {tmp_num} dices with {tmp_point}\n"
+
+            message.append({
+                "role": "user",
+                "content": prompter(context, self.dices, prefix)
+            })
+
             last = context.decisions[-1][1]
             flag = 1
             try_time = 0
             while flag != 0 and try_time < 3:
-                flag, strategy = LLMsResponse(context.decisions, self.dices, 1)
+                flag, strategy = LLMsResponse(context, message, self.dices, 1)
                 if flag:
                     print(flag, strategy)
                 try_time += 1
