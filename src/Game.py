@@ -115,4 +115,3 @@ if __name__ == "__main__":
     print("最终得分:")
     for player in players:
         print(player.name, player.score)
-        

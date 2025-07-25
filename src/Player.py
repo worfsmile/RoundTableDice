@@ -260,7 +260,6 @@ class Player3(Player2):
                     num = n
             decision.makeGuess(num, point)
 
-
 class Player4(Player3):
     """
         行为逻辑:
