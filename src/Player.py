@@ -340,3 +340,4 @@ class Player5(Player4):
     """
     def __init__(self, name: str, add_prefix: bool = False):
         super().__init__(name, add_prefix)
+        
