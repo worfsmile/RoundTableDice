@@ -13,8 +13,9 @@ from copy import deepcopy
 import re
 from typing import List, Tuple
 
-api_key = 'sk-251c110d2ce44b5b93e3618d3df0dc90'
-
+api_key = ''
+with open('api.txt', 'r') as f:
+    api_key = f.read().strip()
 
 def print_balance():
     url = "https://api.deepseek.com/user/balance"
