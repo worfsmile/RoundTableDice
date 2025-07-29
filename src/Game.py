@@ -97,7 +97,7 @@ class Game:
                     print(f"{name}: {dices}")
             self.rounds.append(self.current_round)
             self.current_round = None
-            return True
+            return (player.name, decision)
         return False
 
 if __name__ == "__main__":
