@@ -7,8 +7,9 @@ from LLMsDriven import LLMsResponse, prompter
 from system_message import system_message
 
 class Player:
-    def __init__(self, name: str):
+    def __init__(self, name: str, tag: str = ""):
         self.name = name
+        self.tag = tag
         self.dices = []
         self.score = 0 # 赢一局 + 1, 输一局 -1
         self.dicedict = None
@@ -61,8 +62,8 @@ class Player1(Player):
         非第一次行动: 接收k个l, 若l < 6, 则猜测为k个l+1, 否则猜测为k+1个1
     """
 
-    def __init__(self, name: str):
-        super().__init__(name)
+    def __init__(self, name: str, tag: str = ""):
+        super().__init__(name, tag)
 
     def decide(self, context: Context, decision: Decision) -> None:
         """玩家进行决策"""
@@ -98,8 +99,8 @@ class Player2(Player1):
         在计算概率时考虑自己手中的骰子
     """
 
-    def __init__(self, name: str):
-        super().__init__(name)
+    def __init__(self, name: str, tag: str = ""):
+        super().__init__(name, tag)
 
     def count_dice_dict(self):
         """计算骰子的频数"""
@@ -177,8 +178,8 @@ class Player3(Player2):
         在计算概率时考虑自己手中的骰子, 做出的决策为最极端的策略
     """
 
-    def __init__(self, name: str, threshold: float = None):
-        super().__init__(name)
+    def __init__(self, name: str, tag: str = "", threshold: float = None):
+        super().__init__(name, tag)
         self.threshold = threshold
 
     def get_num_point_plyer3(self, dice_dict, last, context, threshold):
@@ -265,8 +266,8 @@ class Player4(Player3):
         行为逻辑:
         通过大模型驱动的决策机器人
     """
-    def __init__(self, name: str, add_prefix: bool = False):
-        super().__init__(name)
+    def __init__(self, name: str, tag, add_prefix: bool = False):
+        super().__init__(name, tag)
         self.add_prefix = add_prefix
 
     def decide(self, context: Context, decision: Decision) -> None:

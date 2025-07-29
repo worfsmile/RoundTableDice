@@ -14,8 +14,8 @@ class GameUI:
         self.num_dice = 4
         self.num_per_round = 10
 
-        self.players = [Player2("Peter"), Player2("Lois"), Player3("Brian"), Player3("Stewie")]
-        self.player_types = {"Player1": Player1, "Player2": Player2, "Player3": Player3, "Player4": Player4}
+        self.players = [Player3("Peter", "(radical player)"), Player3("Lois", "(radical player)"), Player3("Brian", "(radical player)"), Player3("Stewie", "(radical player)")]
+        self.player_types = {"simple player": Player1, "calm player": Player2, "radical player": Player3, "deepseek player": Player4}
 
         self.main_menu()
 
@@ -110,7 +110,6 @@ class GameUI:
             self.status_var.set(
                 f"第 {self.current_round_index} 轮／共 {self.num_per_round} 轮    当前玩家：{next_player}"
             )
-           
 
         else:
             msg += f"👉 {finished[0]} 选择开 {finished[1].opened_player}\n"
@@ -128,7 +127,6 @@ class GameUI:
             # 判断是否全部回合结束
             if self.current_round_index >= self.num_per_round:
                 # 整场比赛结束
-                # self.end_game()
                 ret = True
             else:
                 # 进入下一回合
@@ -142,9 +140,9 @@ class GameUI:
                 )
 
         self.message_history.append(msg)
-        if self.auto_mode.get():
-            message = "\n".join(self.message_history)
-            self.append_message(message)
+        
+        message = "\n".join(self.message_history)
+        self.append_message(message)
 
         return ret
 
@@ -155,7 +153,7 @@ class GameUI:
 
         for player in self.players:
             dices = player.dices if hasattr(player, 'dices') else []
-            label = tk.Label(status_win, text=f"{player.name}: 🎲 {dices}   分数: {player.score}")
+            label = tk.Label(status_win, text=f"{player.name} {player.tag}: 🎲 {dices}   分数: {player.score}")
             label.pack(anchor="w", padx=10, pady=5)
 
     def append_message(self, msg):
@@ -164,18 +162,11 @@ class GameUI:
             # 清空所有内容
             self.text_widget.delete("1.0", tk.END)
             # 插入新内容
-            self.text_widget.insert(tk.END, msg + "\n")
-            self.text_widget.see("end")
-            self.text_widget.config(state="disabled")
+            if self.auto_mode.get():
+                self.text_widget.insert(tk.END, msg + "\n")
+                self.text_widget.see("end")
+                self.text_widget.config(state="disabled")
 
-    # def end_game(self):
-    #     self.append_message("🏁 游戏结束！最终得分：")
-    #     scores = [(p.name, p.score) for p in self.players]
-    #     for name, score in scores:
-    #         self.append_message(f"{name}: {score}")
-
-    #     tk.messagebox.showinfo("游戏结束", "\n".join([f"{n}: {s}" for n, s in scores]))
-    #     self.main_menu()
 
     def main_menu(self):
         # 清空窗口
@@ -242,8 +233,8 @@ class GameUI:
             num_players = player_count_var.get()
             for i in range(num_players):
                 tk.Label(player_frame, text=f"玩家{i+1} 类型:").grid(row=i, column=0, padx=5, pady=2, sticky='e')
-                type_var = tk.StringVar(value="Player1")
-                type_menu = tk.OptionMenu(player_frame, type_var, "Player1", "Player2", "Player3", "Player4")
+                type_var = tk.StringVar(value="simple player")
+                type_menu = tk.OptionMenu(player_frame, type_var, *self.player_types.keys())
                 type_menu.grid(row=i, column=1, padx=5, pady=2)
                 player_type_vars.append(type_var)
 
@@ -268,7 +259,8 @@ class GameUI:
                 cls_name = player_type_vars[i].get()
                 player_cls = self.player_types[cls_name]
                 player_name = player_name_vars[i].get()
-                selected_players.append(player_cls(player_name))
+                player_tag = f"({cls_name})"
+                selected_players.append(player_cls(player_name, player_tag))
 
             self.players = selected_players
             self.game = Game(num_players, self.players)
