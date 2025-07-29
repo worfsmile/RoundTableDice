@@ -333,5 +333,9 @@ class Player4(Player3):
             decision.makeGuess(num, point)
 
 class Player5(Player4):
+    """
+        行为逻辑:
+
+    """
     def __init__(self, name: str, add_prefix: bool = False):
         super().__init__(name, add_prefix)
