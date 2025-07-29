@@ -74,7 +74,7 @@ class GameUI:
     def on_step(self):
         """单步执行一次 next_turn"""
         finished = self.next_turn()
-        if finished:
+        if finished and hasattr(self, "step_button"):
             # 回合结束后禁用按钮
             self.step_button.config(state="disabled")
             self.run_button .config(state="disabled")
