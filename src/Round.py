@@ -44,7 +44,7 @@ class Round:
         s = 0
         for points in self.dices.values():
             for p in points:
-                if p >= dice_point:
+                if p == dice_point:
                     s += 1
         return s >= dice_num
 

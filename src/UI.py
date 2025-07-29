@@ -14,7 +14,7 @@ class GameUI:
         self.num_dice = 4
         self.num_per_round = 10
 
-        self.players = [Player1("Peter"), Player1("Lois"), Player1("Brian"), Player1("Stewie")]
+        self.players = [Player2("Peter"), Player2("Lois"), Player3("Brian"), Player3("Stewie")]
         self.player_types = {"Player1": Player1, "Player2": Player2, "Player3": Player3, "Player4": Player4}
 
         self.main_menu()
@@ -128,7 +128,7 @@ class GameUI:
             # 判断是否全部回合结束
             if self.current_round_index >= self.num_per_round:
                 # 整场比赛结束
-                self.end_game()
+                # self.end_game()
                 ret = True
             else:
                 # 进入下一回合
@@ -168,14 +168,14 @@ class GameUI:
             self.text_widget.see("end")
             self.text_widget.config(state="disabled")
 
-    def end_game(self):
-        self.append_message("🏁 游戏结束！最终得分：")
-        scores = [(p.name, p.score) for p in self.players]
-        for name, score in scores:
-            self.append_message(f"{name}: {score}")
+    # def end_game(self):
+    #     self.append_message("🏁 游戏结束！最终得分：")
+    #     scores = [(p.name, p.score) for p in self.players]
+    #     for name, score in scores:
+    #         self.append_message(f"{name}: {score}")
 
-        tk.messagebox.showinfo("游戏结束", "\n".join([f"{n}: {s}" for n, s in scores]))
-        self.main_menu()
+    #     tk.messagebox.showinfo("游戏结束", "\n".join([f"{n}: {s}" for n, s in scores]))
+    #     self.main_menu()
 
     def main_menu(self):
         # 清空窗口
