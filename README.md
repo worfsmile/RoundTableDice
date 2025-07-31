@@ -1,3 +1,5 @@
+![img](img.jpg)
+
 # 🎲 RoundTableDice: A Bluffing Dice Game
 
 ```text
