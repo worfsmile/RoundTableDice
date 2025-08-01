@@ -141,3 +141,7 @@ You may assign points to track performance over multiple rounds:
    * Player 3: \[3, 2, 3, 1, 1]
 5. Count of **3s** = 5 → challenge fails
 6. **Player 3 loses** and starts the next round
+
+---
+
+run code: src/UI.py
