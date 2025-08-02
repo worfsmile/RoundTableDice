@@ -144,4 +144,22 @@ You may assign points to track performance over multiple rounds:
 
 ---
 
-run code: src/UI.py
+## 🖥️ Running the Game
+
+run code:
+
+```bash
+python src/UI.py
+```
+
+---
+
+## Setting
+
+setting
+
+- players
+  - simple player
+  - calm player
+  - radical player
+  - deepseek player
