@@ -163,3 +163,9 @@ setting
   - calm player consider the dices on hands and make the conservative decision
   - radical player consider the dices on hands and make the aggressive decision
   - deepseek player deepseek with the content
+
+- show history
+- hide history
+
+- next turn
+- run to the end
