@@ -136,14 +136,19 @@ class GameUI:
                         isopen = isopen_str.lower() == "y"
 
                 if not isopen:
-                    while not point:
-                        point = simpledialog.askinteger("点数", "请输入你要叫的点数（1-6）", parent=self.root, minvalue=1, maxvalue=6)
-                    while not num:
-                        num = simpledialog.askinteger("数量", "请输入你要叫的数量（>=1）", parent=self.root, minvalue=1)
+                    finished = 1
 
-            print("manual_mode:", manual_mode, "isopen:", isopen, "point:", point, "num:", num)
-            
-            finished = self.game.turn(player=player, print_out=False, manual_mode=manual_mode, isopen=isopen, point=point, num=num)
+                    while finished:
+                        point = None
+                        num = None
+                        while not point:
+                            point = simpledialog.askinteger("点数", "请输入你要叫的点数（1-6）", parent=self.root, minvalue=1, maxvalue=6)
+                        while not num:
+                            num = simpledialog.askinteger("数量", "请输入你要叫的数量（>=1）", parent=self.root, minvalue=1)
+
+                        # print("manual_mode:", manual_mode, "isopen:", isopen, "point:", point, "num:", num)
+                    
+                        finished = self.game.turn(player=player, print_out=False, manual_mode=manual_mode, isopen=isopen, point=point, num=num)
         else:
             finished = self.game.turn(player=player, print_out=False)
         ret = False
