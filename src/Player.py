@@ -336,8 +336,76 @@ class Player4(Player3):
 class Player5(Player4):
     """
         行为逻辑:
-
     """
-    def __init__(self, name: str, add_prefix: bool = False):
-        super().__init__(name, add_prefix)
-        
+    def __init__(self, name: str, tag, add_prefix: bool = False):
+        super().__init__(name, tag, add_prefix)
+    
+    def decide(self, context: Context, decision: Decision, manual_mode: bool = False, isopen: bool = False, point: float = None, num: int = None) -> None:
+        if manual_mode:
+            if isopen:
+                decision.makeOpen(context.decisions[-1][0])
+            else:
+                decision.makeGuess(num, point)
+            return
+        """玩家进行决策"""
+        dice_dict = self.count_dice_dict()
+        if context.decisions:
+            
+            message = [
+                {
+                    "role": "system",
+                    "content": system_message(self.dices, self.name)
+                }
+            ]
+
+            prefix = ""
+
+            if self.add_prefix:
+                for i in range(len(context.decisions)):
+                    tmp = context.decisions[i][1]
+                    player_name = context.decisions[i][0]
+                    tmp_num = tmp.dice_num
+                    tmp_point = tmp.dice_point
+                    prefix += f"in {i+1} turn, " + f"{player_name} call {tmp_num} dices with {tmp_point}\n"
+
+            message.append({
+                "role": "user",
+                "content": prompter(context, self.dices, prefix)
+            })
+
+            last = context.decisions[-1][1]
+            flag = 1
+            try_time = 0
+            while flag != 0 and try_time < 3:
+                flag, strategy = LLMsResponse(context, message, self.dices, 1)
+                if flag:
+                    print(flag, strategy)
+                try_time += 1
+            
+            if flag != 0:
+                num, point, this_p = self.get_num_point_plyer3(dice_dict, last, context, 0.5)
+                tmp = self.dice_dict().get(point, 0)
+                last_p = self.count_p(num - tmp, context.dice_num * context.player_num - tmp)
+
+            else:
+                num, point = strategy
+                if num == 0:
+                    last_p = 0
+                    this_p = 0
+                    
+                else:
+                    tmp = self.dice_dict().get(point, 0)
+                    this_p = self.count_p(num, context.dice_num * context.player_num)
+                    last_p = self.count_p(num - tmp, context.dice_num * context.player_num - tmp)
+
+            self.action(decision, context, last_p, this_p, num, point)
+        else:
+            point = 1
+            num = 0
+            for i in range(1, 7):
+                n = dice_dict.get(i, 0)
+                if n > num:
+                    point = i
+                    num = n
+            decision.makeGuess(num, point)
+            

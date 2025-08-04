@@ -1,6 +1,6 @@
 from typing import List, Optional
 import random
-from Player import Player, Player1, Player2, Player3, Player4
+from Player import Player, Player1, Player2, Player3, Player4, Player5
 from Round import Round
 from Decision import Decision
 from Context import Context
@@ -51,16 +51,22 @@ class Game:
         # 游戏刚开始
         return self.players[random.randint(0, len(self.players)-1)]
 
-    def turn(self, print_out: bool) -> bool:
+    def turn(self, player,print_out: bool, manual_mode=False, isopen=False, num=None, point=None) -> bool:
         """继续一轮, 返回本轮是否结束"""
-        if self.current_round is None:
-            print("游戏未开始")
-            return True
+        # if self.current_round is None:
+        #     print("游戏未开始")
+        #     return True
 
-        # 让玩家进行决策
+        # # 让玩家进行决策
         decision = Decision()
-        player = self._getNextPlayer()
-        player.decide(self.current_round.getContext(player.name, self), decision)
+        # player = self._getNextPlayer()
+
+        if isinstance(player, Player5):
+            player.decide(self.current_round.getContext(player.name, self), decision, manual_mode, isopen, num, point)
+        else:
+            player.decide(self.current_round.getContext(player.name, self), decision)
+
+        # player.decide(self.current_round.getContext(player.name, self), decision)
         if not self.current_round.makeDecision(player.name, decision):
             return True # 不合法的猜测结束
 

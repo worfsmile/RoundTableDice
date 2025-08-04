@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog
 from Game import Game
-from Player import Player1, Player2, Player3, Player4
+from Player import Player1, Player2, Player3, Player4, Player5
 from Decision import Decision
 import random
 
@@ -14,8 +14,17 @@ class GameUI:
         self.num_dice = 4
         self.num_per_round = 10
 
-        self.players = [Player3("Peter", "(radical player)"), Player3("Lois", "(radical player)"), Player3("Brian", "(radical player)"), Player3("Stewie", "(radical player)")]
-        self.player_types = {"simple player": Player1, "calm player": Player2, "radical player": Player3, "deepseek player": Player4}
+        self.players = [
+            Player3("Peter", "(radical player)"), 
+            Player3("Lois", "(radical player)"), 
+            Player3("Brian", "(radical player)"), 
+            Player3("Stewie", "(radical player)")]
+        self.player_types = {
+            "simple player": Player1, 
+            "calm player": Player2, 
+            "radical player": Player3, 
+            "deepseek player": Player4,
+            "human player": Player5}
 
         self.main_menu()
 
@@ -91,12 +100,52 @@ class GameUI:
                 self.root.after(50, loop)
         loop()
 
-    def next_turn(self):
+    def next_turn(self, manual_mode=False, isopen=False, point=None, num=None):
         """
         执行一个决策回合，返回 True 表示本局（所有回合）已结束，
         返回 False 则表示本轮（单回合）尚未结束，需要继续循环。
         """
-        finished = self.game.turn(print_out=False)
+        if self.game.current_round is None:
+            print("游戏未开始")
+            return True
+
+        # 让玩家进行决策
+        # decision = Decision()
+        player = self.game._getNextPlayer()
+
+        manual_mode = False
+        isopen = False
+        point = None
+        num = None
+
+        if isinstance(player, Player5):
+            # 人类玩家
+            
+            # 弹出窗口
+            # 输入manual_mode, isopen, point, num
+            
+            # 接收输入
+            manual_mode_str = simpledialog.askstring("操作方式", "是否为手动模式？(y/n)", parent=self.root)
+            if manual_mode_str:    
+                manual_mode = manual_mode_str.lower() == "y"
+
+            if manual_mode:
+                if len(self.game.current_round.decisions) != 0:
+                    isopen_str = simpledialog.askstring("是否开", "是否选择开？(y/n)", parent=self.root)
+                    if isopen_str:
+                        isopen = isopen_str.lower() == "y"
+
+                if not isopen:
+                    while not point:
+                        point = simpledialog.askinteger("点数", "请输入你要叫的点数（1-6）", parent=self.root, minvalue=1, maxvalue=6)
+                    while not num:
+                        num = simpledialog.askinteger("数量", "请输入你要叫的数量（>=1）", parent=self.root, minvalue=1)
+
+            print("manual_mode:", manual_mode, "isopen:", isopen, "point:", point, "num:", num)
+            
+            finished = self.game.turn(player=player, print_out=False, manual_mode=manual_mode, isopen=isopen, point=point, num=num)
+        else:
+            finished = self.game.turn(player=player, print_out=False)
         ret = False
         msg = ""
         if not finished:
