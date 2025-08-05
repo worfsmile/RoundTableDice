@@ -5,6 +5,36 @@ from Player import Player1, Player2, Player3, Player4, Player5
 from Decision import Decision
 import random
 
+def ask_yes_no(parent, title, question):
+    dialog = tk.Toplevel(parent)
+    dialog.title(title)
+    dialog.grab_set()  # 阻止操作其他窗口，模态窗口
+
+    result = {'value': None}  # 用字典来保存结果，因为闭包不能直接修改外部变量
+
+    # 点击“是”
+    def yes():
+        result['value'] = "y"
+        dialog.destroy()
+
+    # 点击“否”
+    def no():
+        result['value'] = "n"
+        dialog.destroy()
+
+    label = tk.Label(dialog, text=question)
+    label.pack(padx=20, pady=10)
+
+    btn_yes = tk.Button(dialog, text="是 (y)", width=10, command=yes)
+    btn_yes.pack(side=tk.LEFT, padx=10, pady=10)
+
+    btn_no = tk.Button(dialog, text="否 (n)", width=10, command=no)
+    btn_no.pack(side=tk.RIGHT, padx=10, pady=10)
+
+    parent.wait_window(dialog)  # 等待对话框关闭
+
+    return result['value']
+
 class GameUI:
     def __init__(self, root):
         self.root = root
@@ -125,13 +155,13 @@ class GameUI:
             # 输入manual_mode, isopen, point, num
             
             # 接收输入
-            manual_mode_str = simpledialog.askstring("操作方式", "是否为手动模式？(y/n)", parent=self.root)
+            manual_mode_str = ask_yes_no(self.root, "操作方式", "是否手动输入？(y/n)")
             if manual_mode_str:    
                 manual_mode = manual_mode_str.lower() == "y"
 
             if manual_mode:
                 if len(self.game.current_round.decisions) != 0:
-                    isopen_str = simpledialog.askstring("是否开", "是否选择开？(y/n)", parent=self.root)
+                    isopen_str = ask_yes_no(self.root, "是否开", "是否选择开？(y/n)")
                     if isopen_str:
                         isopen = isopen_str.lower() == "y"
 
@@ -149,6 +179,12 @@ class GameUI:
                         # print("manual_mode:", manual_mode, "isopen:", isopen, "point:", point, "num:", num)
                     
                         finished = self.game.turn(player=player, print_out=False, manual_mode=manual_mode, isopen=isopen, point=point, num=num)
+            
+                else:
+                    finished = self.game.turn(player=player, print_out=False, manual_mode=manual_mode, isopen=isopen, point=point, num=num)
+        
+            else:
+                finished = self.game.turn(player=player, print_out=False)
         else:
             finished = self.game.turn(player=player, print_out=False)
         ret = False
