@@ -152,6 +152,8 @@ run code:
 python src/UI.py
 ```
 
+put api-key in api.txt
+
 ---
 
 ## Setting
